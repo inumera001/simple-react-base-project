@@ -297,17 +297,17 @@ export const createPaymentLink = async (
   totalAmount: number, 
   clientEmail: string, 
   paymentOptions: {
-    change?: {
+    change: {
       currency: string;
       rate: number;
     };
-    amount?: number;
-    failureUrl?: string;
-    successUrl?: string;
-    callbackUrl?: string;
-    paymentDescription?: string;
-    methods?: string[];
-    message?: string;
+    amount: number;
+    failureUrl: string;
+    successUrl: string;
+    callbackUrl: string;
+    paymentDescription: string;
+    methods: string[];
+    message: string;
   }
 ) => {
   try {
@@ -316,7 +316,7 @@ export const createPaymentLink = async (
         quoteId,
         totalAmount,
         clientEmail,
-        ...paymentOptions
+        
       }
     });
 
