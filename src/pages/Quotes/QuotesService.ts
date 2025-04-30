@@ -294,7 +294,7 @@ export const fetchClientByQuoteId = async (quoteId: string) => {
 };
 
 export const createPaymentLink = async (
-  quoteId: string, 
+  quoteId: string,
   amount: number,
   clientEmail: string,
   options: {
@@ -312,33 +312,37 @@ export const createPaymentLink = async (
 ) => {
   try {
     const origin = window.location.origin;
-    const notificationUrl = "https://wprlkplzlhyrphbcaalc.supabase.co/functions/v1/payment-notification";
-    
-    const { data, error } = await supabase.functions.invoke('payment-link', {
-      body: { 
-        quoteId,
-        totalAmount: amount,
-        clientEmail,
-        change: options.change || {
-          currency: "EUR",
-          rate: 1
-        },
-        failureUrl: options.failureUrl || `${origin}/payment/failure?quoteId=${quoteId}`,
-        successUrl: options.successUrl || `${origin}/payment/success?quoteId=${quoteId}`,
-        callbackUrl: options.callbackUrl || `${origin}/payment/callback/${quoteId}`,
-        notificationUrl: notificationUrl,
-        paymentDescription: options.paymentDescription || "Plaquette d'offres",
-        methods: options.methods || [
-          "ORANGE_MONEY",
-          "MVOLA",
-          "VISA"
-        ],
-        message: options.message || "Plaquette d'offres",
-        token: "$2a$12$abjdxfghijtlmnopqrutwu8RVLPW4J3M9umNeC5rOrzo81WdnpEFy"
-      }
-    });
 
-    if (error) throw error;
+    const payload = {
+      quoteId,
+      totalAmount: amount,
+      clientEmail,
+      change: options.change || { currency: "EUR", rate: 1 },
+      failureUrl: options.failureUrl || ${origin}/payment/failure?quoteId=${quoteId},
+      successUrl: options.successUrl || ${origin}/payment/success?quoteId=${quoteId},
+      callbackUrl: options.callbackUrl || ${origin}/payment/callback/${quoteId},
+      paymentDescription: options.paymentDescription || "Plaquette d'offres",
+      methods: options.methods || ["ORANGE_MONEY", "MVOLA", "VISA"],
+      message: options.message || "Plaquette d'offres",
+    };
+
+    const response = await fetch(
+      "https://wprlkplzlhyrphbcaalc.supabase.co/functions/v1/payment-notification",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $2a$12$abjdxfghijtlmnopqrutwu8RVLPW4J3M9umNeC5rOrzo81WdnpEFy",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || "Erreur lors de la création du lien de paiement.");
+    }
+
     return data;
   } catch (error) {
     console.error("Error creating payment link:", error);
